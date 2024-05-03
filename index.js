@@ -1,32 +1,93 @@
-function add(num1, num2) {
-	return num1 + num2;
+const displayCurrent = document.querySelector('#current-operand');
+const displayPrevious = document.querySelector('#previous-operand');
+const numberButtons = document.querySelectorAll('.number');
+const operationButtons = document.querySelectorAll('.operation');
+const equalsButton = document.querySelector('.equals');
+const clearButton = document.querySelector('.clear');
+const dotButton = document.querySelector('.dot');
+
+let currentOperand = '';
+let previousOperand = '';
+let operation = null;
+
+numberButtons.forEach((button) => {
+	button.addEventListener('click', () => {
+		appendNumber(button.innerText);
+		updateDisplay();
+	});
+});
+
+operationButtons.forEach((button) => {
+	button.addEventListener('click', () => {
+		chooseOperation(button.innerText);
+		updateDisplay();
+	});
+});
+
+clearButton.addEventListener('click', clear);
+equalsButton.addEventListener('click', compute);
+dotButton.addEventListener('click', appendDot);
+
+function appendNumber(number) {
+	if (number === '.' && currentOperand.includes('.')) return;
+	currentOperand = currentOperand.toString() + number.toString();
 }
 
-function subtract(num1, num2) {
-	return num1 - num2;
+function updateDisplay() {
+	document.querySelector('#current-operand').innerText = currentOperand;
+	document.querySelector('#previous-operand').innerText =
+		previousOperand + ' ' + (operation || '');
 }
 
-function multiply(num1, num2) {
-	return num1 * num2;
+function chooseOperation(selectedOperation) {
+	if (currentOperand === '') return;
+	if (previousOperand !== '') {
+		compute();
+	}
+	operation = selectedOperation;
+	previousOperand = currentOperand;
+	currentOperand = '';
 }
 
-function divide(num1, num2) {
-	return num1 / num2;
-}
+function compute() {
+	let computation;
+	const prev = parseFloat(previousOperand);
+	const current = parseFloat(currentOperand);
+	if (isNaN(prev) || isNaN(current)) return;
 
-function operate(num1, operator, num2) {
-	switch (operator) {
+	switch (operation) {
 		case '+':
-			add(num1, num2);
+			computation = prev + current;
 			break;
 		case '-':
-			subtract(num1, num2);
+			computation = prev - current;
 			break;
 		case '*':
-			multiply(num1, num2);
+			computation = prev * current;
 			break;
 		case '/':
-			divide(num1, num2);
+			computation = prev / current;
 			break;
+		default:
+			return;
 	}
+
+	currentOperand = computation;
+	operation = undefined;
+	previousOperand = '';
+	updateDisplay();
+}
+
+function clear() {
+	currentOperand = '';
+	previousOperand = '';
+	operation = null;
+	updateDisplay();
+}
+
+function appendDot() {
+	if (currentOperand.includes('.')) return;
+	if (currentOperand === '') currentOperand = '0';
+	currentOperand += "."
+	updateDisplay();
 }
