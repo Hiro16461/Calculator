@@ -1,93 +1,81 @@
-const displayCurrent = document.querySelector('#current-operand');
-const displayPrevious = document.querySelector('#previous-operand');
-const numberButtons = document.querySelectorAll('.number');
-const operationButtons = document.querySelectorAll('.operation');
-const equalsButton = document.querySelector('.equals');
-const clearButton = document.querySelector('.clear');
-const dotButton = document.querySelector('.dot');
+const display = document.querySelector('.display');
+const numberBtns = document.querySelectorAll('.btn.number');
+const clearBtn = document.querySelector('.btn.clear');
+const operateBtns = document.querySelectorAll('.btn.operator');
+const equalBtn = document.querySelector('.btn.equal');
 
-let currentOperand = '';
-let previousOperand = '';
-let operation = null;
+let numberOne = 0;
+let numberTwo = 0;
+let operator = null;
 
-numberButtons.forEach((button) => {
-	button.addEventListener('click', () => {
-		appendNumber(button.innerText);
-		updateDisplay();
+const add = (num1, num2) => {
+	return Number(num1) + Number(num2);
+};
+
+const subtract = (num1, num2) => {
+	return Number(num1) - Number(num2);
+};
+
+const multiply = (num1, num2) => {
+	return Number(num1) * Number(num2);
+};
+
+const divide = (num1, num2) => {
+	return Number(num1) / Number(num2);
+};
+
+[...numberBtns].forEach((numberBtn) => {
+	numberBtn.addEventListener('click', (e) => {
+		console.log(numberOne, operator, numberTwo);
+
+		if (numberOne && operator) {
+			numberTwo += e.target.innerText;
+			display.textContent = +numberTwo;
+		} else {
+			numberOne += e.target.innerText;
+			display.textContent = +numberOne;
+		}
 	});
 });
 
-operationButtons.forEach((button) => {
-	button.addEventListener('click', () => {
-		chooseOperation(button.innerText);
-		updateDisplay();
+Array.from(operateBtns).forEach((operateBtn) => {
+	operateBtn.addEventListener('click', (e) => {
+		operator = e.target.innerText;
 	});
 });
 
-clearButton.addEventListener('click', clear);
-equalsButton.addEventListener('click', compute);
-dotButton.addEventListener('click', appendDot);
-
-function appendNumber(number) {
-	if (number === '.' && currentOperand.includes('.')) return;
-	currentOperand = currentOperand.toString() + number.toString();
-}
-
-function updateDisplay() {
-	document.querySelector('#current-operand').innerText = currentOperand;
-	document.querySelector('#previous-operand').innerText =
-		previousOperand + ' ' + (operation || '');
-}
-
-function chooseOperation(selectedOperation) {
-	if (currentOperand === '') return;
-	if (previousOperand !== '') {
-		compute();
+equalBtn.addEventListener('click', (e) => {
+	if (numberOne && operator && numberTwo) {
+		switch (operator) {
+			case '+':
+				display.textContent = +add(numberOne, numberTwo);
+				numberOne = +add(numberOne, numberTwo);
+				numberTwo = 0;
+				break;
+			case '-':
+				display.textContent = +subtract(numberOne, numberTwo);
+				numberOne = +subtract(numberOne, numberTwo);
+				numberTwo = 0;
+				break;
+			case '*':
+				display.textContent = +multiply(numberOne, numberTwo);
+				numberOne = +multiply(numberOne, numberTwo);
+				numberTwo = 0;
+				break;
+			case '÷':
+				display.textContent = +divide(numberOne, numberTwo);
+				numberOne = +divide(numberOne, numberTwo);
+				numberTwo = 0;
+				break;
+			default:
+				break;
+		}
 	}
-	operation = selectedOperation;
-	previousOperand = currentOperand;
-	currentOperand = '';
-}
+});
 
-function compute() {
-	let computation;
-	const prev = parseFloat(previousOperand);
-	const current = parseFloat(currentOperand);
-	if (isNaN(prev) || isNaN(current)) return;
-
-	switch (operation) {
-		case '+':
-			computation = prev + current;
-			break;
-		case '-':
-			computation = prev - current;
-			break;
-		case '*':
-			computation = prev * current;
-			break;
-		case '/':
-			computation = prev / current;
-			break;
-		default:
-			return;
-	}
-
-	currentOperand = computation;
-	operation = undefined;
-	previousOperand = '';
-	updateDisplay();
-}
-
-function clear() {
-	currentOperand = '';
-	previousOperand = '';
-	operation = null;
-	updateDisplay();
-}
-
-function appendDot() {
-	if (currentOperand.includes('.')) return;
-	if (currentOperand === '') currentOperand = '0';
-	currentOperand += "."
-	updateDisplay();
-}
+clearBtn.addEventListener('click', (e) => {
+	numberOne = 0;
+	numberTwo = 0;
+	operator = null;
+	display.textContent = 0;
+});
